@@ -1,0 +1,17 @@
+{
+  "id": "2210.03629",
+  "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+  "authors": [
+    "Shunyu Yao",
+    "Jeffrey Zhao",
+    "Dian Yu"
+  ],
+  "published": "2022-10-06",
+  "url": "https://arxiv.org/abs/2210.03629",
+  "categories": [
+    "cs.CL",
+    "cs.AI"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "Reasoning traces let a language model plan and track state, while actions let it gather information from external tools. ReAct interleaves free-form reasoning with task specific actions such as search queries, so each step is grounded in an observation from the environment. On question answering and fact verification the interleaving reduces hallucination compared with chain-of-thought alone, and on interactive decision making it improves success rates over imitation and reinforcement learning baselines. Human inspection shows the traces are more interpretable than reasoning without actions."
+}

@@ -1,0 +1,20 @@
+# Core prototype - enough for the CLI and the tests.
+requests>=2.31
+
+# PDF parsing (Docling is optional and used automatically when installed)
+pypdf>=4.0
+
+# Web layer
+fastapi>=0.110
+uvicorn>=0.27
+
+# Development
+pytest>=8.0
+httpx2>=0.1            # starlette's TestClient dependency (newer FastAPI)
+
+# Optional extras, uncomment as you need them:
+# fastmcp>=2.0            # expose the tools as an MCP server
+# redis>=5.0              # Upstash / Redis exact-match cache
+# apache-airflow>=2.9     # scheduled arXiv ingestion (dags/arxiv_ingest_dag.py)
+# docling>=2.0            # layout-aware PDF parsing instead of pypdf
+# langgraph>=0.2          # real orchestration engine instead of src/core/graph.py

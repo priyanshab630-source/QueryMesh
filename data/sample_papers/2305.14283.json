@@ -1,0 +1,17 @@
+{
+  "id": "2305.14283",
+  "title": "Query Rewriting for Retrieval-Augmented Large Language Models",
+  "authors": [
+    "Xinbei Ma",
+    "Yeyong Gong",
+    "Pengjun Xie"
+  ],
+  "published": "2023-05-23",
+  "url": "https://arxiv.org/abs/2305.14283",
+  "categories": [
+    "cs.CL",
+    "cs.IR"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "User questions are often phrased in ways that retrieve poorly, especially follow-up questions with unresolved references. The authors train a small language model as a rewriter that turns the original question into one or more retrieval-friendly queries, and train the reader to handle the rewritten set. Rewriting is trained with reinforcement learning against the downstream answer quality rather than against lexical overlap. The pipeline improves retrieval precision and answer accuracy on open-domain QA while keeping inference cost low because the rewriter is much smaller than the reader."
+}

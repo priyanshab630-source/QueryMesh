@@ -1,0 +1,17 @@
+{
+  "id": "2404.16130",
+  "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
+  "authors": [
+    "Darren Edge",
+    "Ha Trinh",
+    "Newman Cheng"
+  ],
+  "published": "2024-04-24",
+  "url": "https://arxiv.org/abs/2404.16130",
+  "categories": [
+    "cs.CL",
+    "cs.IR"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "Chunk-based retrieval fails on global questions such as what are the main themes across this corpus, because no single chunk contains the answer. Graph RAG extracts an entity and relation graph from the documents, clusters it hierarchically and pre-summarises each community. At query time the system maps the question onto community summaries and reduces them into a final answer. On query-focused summarization of large corpora the approach produces more comprehensive and diverse answers than vector retrieval baselines, at the cost of a heavier indexing stage."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "2310.11511",
+  "title": "Self-RAG: Learning to Retrieve, Generate and Critique through Self-Reflection",
+  "authors": [
+    "Akari Asai",
+    "Zeqiu Wu",
+    "Yizhong Wang"
+  ],
+  "published": "2023-10-17",
+  "url": "https://arxiv.org/abs/2310.11511",
+  "categories": [
+    "cs.CL",
+    "cs.LG"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "Adaptive retrieval frameworks decide when retrieval is needed instead of always retrieving a fixed number of passages. Self-RAG trains a single language model to emit reflection tokens that mark whether a passage is relevant, whether the generated statement is supported by it, and whether the overall response is useful. At inference the model critiques its own candidates and selects the best supported one. The approach improves factual precision, citation accuracy and long-form generation quality over retrieval-augmented baselines of comparable size."
+}

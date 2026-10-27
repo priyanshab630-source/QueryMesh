@@ -1,0 +1,16 @@
+{
+  "id": "2401.15884",
+  "title": "Corrective Retrieval Augmented Generation",
+  "authors": [
+    "Shi-Qi Yan",
+    "Jia-Chen Gu",
+    "Yun Zhu"
+  ],
+  "published": "2024-01-29",
+  "url": "https://arxiv.org/abs/2401.15884",
+  "categories": [
+    "cs.CL"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "Retrieval augmented generation degrades sharply when the retriever returns irrelevant passages, and the generator tends to trust whatever it is given. The authors add a lightweight retrieval evaluator that scores each retrieved document for relevance and triggers one of three actions: use the document, query the web for better sources, or answer from the model's own knowledge. A decompose-then-recompose step filters out irrelevant sentences before generation. The method improves robustness on short and long form tasks and works as a plug-in for existing pipelines."
+}

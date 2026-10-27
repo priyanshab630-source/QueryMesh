@@ -1,0 +1,17 @@
+{
+  "id": "2005.11401",
+  "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+  "authors": [
+    "Patrick Lewis",
+    "Ethan Perez",
+    "Aleksandra Piktus"
+  ],
+  "published": "2020-05-22",
+  "url": "https://arxiv.org/abs/2005.11401",
+  "categories": [
+    "cs.CL",
+    "cs.AI"
+  ],
+  "note": "Abstract summarised for the offline demo corpus.",
+  "abstract": "Large pre-trained language models store factual knowledge in their parameters but cannot easily update it and tend to hallucinate. The authors combine a pre-trained sequence-to-sequence generator with a dense retriever over a Wikipedia index, so the model conditions each generation on retrieved passages. Retrieval is trained jointly with generation as a latent variable. The hybrid model sets state of the art on several open-domain question answering benchmarks and produces more specific, diverse and factual text than a purely parametric baseline."
+}
