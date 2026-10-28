@@ -27,5 +27,13 @@ jobs:
       - name: Run tests
         run: pytest -q
 
+      - name: Install optional extras used by the tests
+        run: pip install langgraph fastmcp gradio
+
+      - name: Run tests on the LangGraph engine
+        env:
+          USE_LANGGRAPH: "1"
+        run: pytest -q
+
       - name: Smoke-test the CLI (offline corpus, no keys)
         run: python main.py --demo > /dev/null

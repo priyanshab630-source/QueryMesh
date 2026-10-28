@@ -1,0 +1,68 @@
+# Defaults for a single-region EKS deployment behind an ALB.
+# Override per environment: helm upgrade --install querymesh . -f values.prod.yaml
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/priyanshab630-source/querymesh
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+  host: querymesh.example.com
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+# Non-secret configuration. Secrets live in AWS Secrets Manager and are synced
+# by the External Secrets Operator into the secret below.
+env:
+  USE_LANGGRAPH: "1"
+  AUTH_ENABLED: "1"
+  TRACE_ENABLED: "1"
+  TOP_K: "6"
+  MAX_RETRIEVAL_LOOPS: "2"
+
+externalSecret:
+  enabled: true
+  secretStoreRef: aws-secrets-manager
+  remoteSecretName: querymesh/prod
+  targetSecretName: querymesh-secrets
+
+serviceAccount:
+  create: true
+  name: querymesh
+  annotations: {}
+  # eks.amazonaws.com/role-arn: arn:aws:iam::<account>:role/querymesh-irsa
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 20
+  periodSeconds: 20
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 10

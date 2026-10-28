@@ -15,6 +15,8 @@ import config
 from src.agents.workflow import ask
 from src.search.index import get_index, rebuild
 from src.tools import arxiv_client, cache, llm
+from src.core import tracing
+from src.core.engine import engine_name
 from src.search import embeddings
 
 
@@ -91,6 +93,9 @@ def main(argv=None) -> int:
             "cache": cache.stats(),
             "embeddings": embeddings.backend_name(),
             "llm": "sarvam" if llm.available() else "rule-based fallback",
+            "engine": engine_name(),
+            "tracing": tracing.sinks(),
+            "auth": "jwt" if config.AUTH_ENABLED else "open",
         }, indent=2))
         return 0
 

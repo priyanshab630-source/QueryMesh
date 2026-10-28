@@ -27,6 +27,35 @@ EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "256"))
 REDIS_URL = os.getenv("REDIS_URL", "")
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
 
+# ---------- Orchestration engine ----------
+# 1 = real LangGraph StateGraph, 0 = the dependency-free shim in src/core/graph.py
+USE_LANGGRAPH = os.getenv("USE_LANGGRAPH", "0") in ("1", "true", "yes")
+
+# ---------- Observability ----------
+# Local JSONL traces are always written; LangSmith / Langfuse are opt-in.
+TRACE_DIR = Path(os.getenv("TRACE_DIR", str(ROOT / "traces")))
+TRACE_ENABLED = os.getenv("TRACE_ENABLED", "1") in ("1", "true", "yes")
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY", "")
+LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "querymesh")
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", "")
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+
+# ---------- Auth (JWT, HS256) ----------
+# AUTH_ENABLED=1 protects /ask and /ingest with a bearer token issued by /token.
+AUTH_ENABLED = os.getenv("AUTH_ENABLED", "0") in ("1", "true", "yes")
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
+JWT_TTL_SECONDS = int(os.getenv("JWT_TTL_SECONDS", "3600"))
+API_CLIENT_ID = os.getenv("API_CLIENT_ID", "demo-client")
+API_CLIENT_SECRET = os.getenv("API_CLIENT_SECRET", "demo-secret")
+
+# ---------- A2A (agent-to-agent) ----------
+A2A_PUBLIC_URL = os.getenv("A2A_PUBLIC_URL", "http://localhost:8000")
+
+# ---------- Ingestion ----------
+USE_DOCLING = os.getenv("USE_DOCLING", "0") in ("1", "true", "yes")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
 # ---------- Retrieval ----------
 CHUNK_WORDS = int(os.getenv("CHUNK_WORDS", "90"))
 TOP_K = int(os.getenv("TOP_K", "6"))

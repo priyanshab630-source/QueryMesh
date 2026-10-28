@@ -1,0 +1,9 @@
+apiVersion: v2
+name: querymesh
+description: Multi-agent arXiv research assistant (hybrid retrieval + verified citations)
+type: application
+version: 0.2.0
+appVersion: "0.2.0"
+keywords: [rag, langgraph, arxiv, retrieval]
+maintainers:
+  - name: Priyansha Bharti

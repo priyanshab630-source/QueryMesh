@@ -8,11 +8,31 @@ layout-aware parsing keeps tables and section order intact:
 
 from pathlib import Path
 
+import config
+
+
+def backend() -> str:
+    """Which parser will be used: 'docling' (if installed and enabled) or 'pypdf'."""
+    if not config.USE_DOCLING:
+        return "pypdf"
+    try:
+        import docling  # noqa: F401
+
+        return "docling"
+    except ImportError:
+        return "pypdf (docling not installed)"
+
 
 def parse(path) -> str:
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(path)
+
+    if not config.USE_DOCLING:
+        from pypdf import PdfReader
+
+        return "\n\n".join((page.extract_text() or "")
+                            for page in PdfReader(str(path)).pages)
 
     try:
         from docling.document_converter import DocumentConverter   # optional
