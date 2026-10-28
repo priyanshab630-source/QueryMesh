@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>ArXiv Query: search_query=all:retrieval</title>
+  <entry>
+    <id>http://arxiv.org/abs/2404.16130v2</id>
+    <published>2024-04-24T17:59:59Z</published>
+    <title>From Local to Global: A Graph RAG Approach to
+      Query-Focused Summarization</title>
+    <summary>Chunk-based retrieval fails on global questions. Graph RAG builds an
+      entity graph and pre-summarises communities.</summary>
+    <author><name>Darren Edge</name></author>
+    <author><name>Ha Trinh</name></author>
+    <link href="http://arxiv.org/abs/2404.16130v2" rel="alternate"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2404.16130v2" rel="related"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2310.11511v1</id>
+    <published>2023-10-17T01:00:00Z</published>
+    <title>Self-RAG: Learning to Retrieve, Generate and Critique</title>
+    <summary>Reflection tokens mark whether a passage is relevant and whether the
+      output is supported.</summary>
+    <author><name>Akari Asai</name></author>
+    <link title="pdf" href="http://arxiv.org/pdf/2310.11511v1" rel="related"/>
+  </entry>
+</feed>

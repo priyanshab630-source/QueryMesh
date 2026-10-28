@@ -11,7 +11,11 @@ from datetime import datetime, timedelta
 
 try:
     from airflow import DAG
-    from airflow.operators.python import PythonOperator
+
+    try:                                        # Airflow 3
+        from airflow.providers.standard.operators.python import PythonOperator
+    except ImportError:                         # Airflow 2
+        from airflow.operators.python import PythonOperator
 except ImportError:                              # Airflow is optional
     DAG = None
 

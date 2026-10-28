@@ -60,7 +60,7 @@ def set(key: str, value, ttl: int = None) -> None:
     ttl = ttl or config.CACHE_TTL_SECONDS
     client = _redis()
     if client is not None:
-        client.setex(key, ttl, json.dumps(value))
+        client.set(key, json.dumps(value), ex=ttl)     # setex is deprecated
         return
     _memory[key] = (value, time.time() + ttl)
 

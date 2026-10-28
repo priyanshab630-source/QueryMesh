@@ -136,6 +136,7 @@ querymesh/
 │   │   └── workflow.py         # the graph wiring
 │   ├── search/
 │   │   ├── bm25.py             # Okapi BM25, pure Python
+│   │   ├── opensearch_backend.py # optional real BM25 from a cluster
 │   │   ├── embeddings.py       # Jina API or hashed vectors
 │   │   ├── rrf.py              # reciprocal rank fusion
 │   │   └── index.py            # chunking + hybrid search
@@ -150,7 +151,8 @@ querymesh/
 │       ├── tracing.py          # local JSONL + LangSmith/Langfuse sinks
 │       └── graph.py            # LangGraph-shaped StateGraph (dependency-free)
 ├── data/sample_papers/         # 6-paper offline corpus
-├── tests/                      # 64 pytest tests, run on both engines
+├── data/fixtures/              # recorded arXiv feed + Europe PMC response
+├── tests/                      # 88 pytest tests, run on both engines
 ├── .github/workflows/ci.yml    # tests on 3.11 + 3.12, both engines
 ├── .github/workflows/cd.yml    # image build -> GHCR, optional Helm rollout
 └── Dockerfile
@@ -165,6 +167,15 @@ incomparable scales, so `src/search/rrf.py` fuses *ranks*
 (`Σ w / (k + rank)`) instead of inventing a normalisation. Both rankers are
 visible in every hit (`bm25_rank`, `dense_rank`), so you can see which one
 found the chunk.
+
+**Two keyword backends.** In-process BM25 is the default (no infrastructure).
+With `SEARCH_BACKEND=opensearch` and `OPENSEARCH_URL` set,
+`src/search/opensearch_backend.py` creates the index, bulk-loads the chunks and
+serves BM25 from a real cluster — `HybridIndex` swaps the ranker without any
+other change, and falls back to the in-process index if the cluster is
+unreachable. The mapping, bulk payload and query DSL are asserted in
+`tests/test_opensearch.py`; a live round-trip test runs when `OPENSEARCH_URL` is
+set.
 
 **The grader can send the graph backwards.** If the best relevance is below
 `RELEVANCE_THRESHOLD`, the grader records which query terms were missing and
@@ -202,7 +213,10 @@ rolls out when `ENABLE_DEPLOY=true` and a cluster is configured.
 
 **Caching is exact-match.** `SHA256(model ‖ question ‖ corpus size)` as the key.
 Identical repeated queries return from cache; anything else re-runs the graph.
-Redis/Upstash when `REDIS_URL` is set, otherwise an in-process TTL dict.
+Redis/Upstash when `REDIS_URL` is set, otherwise an in-process TTL dict. The
+Redis path is exercised against a real redis-py client (fakeredis) in
+`tests/test_cache_redis.py`, including TTLs and the fallback when the server
+disappears.
 
 ---
 
@@ -221,11 +235,26 @@ Any MCP client can then use the corpus and the agent loop as tools.
 
 ---
 
+## Ingestion and parsing
+
+`src/tools/arxiv_client.py` searches arXiv, parses the Atom feed and can download
+PDFs; `src/tools/pdf_parser.py` turns a PDF into text with **pypdf** by default or
+**Docling** when `USE_DOCLING=1` (layout-aware; table structure and OCR are
+opt-in via `DOCLING_TABLES` / `DOCLING_OCR` because they load extra models).
+Parsing is tested against the recorded feed in `data/fixtures/`, so the Atom
+parser and the ingest path are covered without network access.
+
+Docling needs roughly 2 GB of RAM for its layout models — more than the sandbox
+this repo was built in, so its test is opt-in (`DOCLING_TEST=1`) and the adapter
+falls back to pypdf if the conversion fails.
+
 ## Scheduled ingestion
 
 `dags/arxiv_ingest_dag.py` is a daily Airflow DAG that pulls papers for a list
 of topics into `data/papers/`, which the index picks up on the next rebuild.
-Copy it into your Airflow `dags/` folder, or point Airflow at this repo.
+`tests/test_airflow_dag.py` loads it through Airflow's own `DagBag` and asserts
+the three tasks exist, so the DAG is validated by Airflow rather than by eye.
+`dags/run_ingest.py` runs the same task function without a scheduler.
 
 ---
 
@@ -237,9 +266,15 @@ Copy it into your Airflow `dags/` folder, or point Airflow at this repo.
 - **Nothing is deployed.** The Helm chart and `cd.yml` are written to be applied;
   no cluster, registry or Helm release is attached to this repo. Say "manifests
   and pipeline written", not "running on EKS".
-- **Docling and Airflow are adapters, not dependencies.** `USE_DOCLING=1` switches
-  the PDF parser when Docling is installed, and `dags/run_ingest.py` runs the
-  ingestion task without Airflow. Neither was executed in this environment.
+- **Docling is wired and falls back.** The adapter works and is tested for the
+  fallback path; a full Docling conversion needs ~2 GB of RAM, so it is opt-in and
+  was not part of the automated run here.
+- **Airflow validates the DAG, not a schedule.** The DAG is parsed by Airflow's
+  `DagBag` and has three tasks; no scheduler, database or run history exists in
+  this repo.
+- **OpenSearch and Redis are tested, not deployed.** OpenSearch is exercised
+  through the client's transport layer (plus an opt-in live test) and Redis
+  through fakeredis; neither service runs in this repo.
 - **Telegram needs a bot token**, so that path is exercised with a stubbed HTTP
   layer in the tests rather than against Telegram itself.
 - **Without `JINA_API_KEY` the dense half is a hashing trick** — deterministic,
@@ -257,8 +292,9 @@ Copy it into your Airflow `dags/` folder, or point Airflow at this repo.
 ## Roadmap
 
 - [ ] Full-text indexing: PDF → chunks instead of abstracts
+- [x] OpenSearch BM25 backend (SEARCH_BACKEND=opensearch)
 - [ ] Cross-encoder reranker over the fused top-20
-- [ ] Persistent vector store (pgvector / Qdrant) instead of in-process numpy-free lists
+- [ ] Persistent vector store (pgvector / Qdrant) instead of in-process lists
 - [x] LangGraph engine (`USE_LANGGRAPH=1`) + LangSmith/Langfuse tracing
 - [x] A2A cards + JSON-RPC endpoint, JWT auth, Gradio and Telegram UIs
 - [ ] Answer-level eval harness (groundedness, coverage, refusal precision)
@@ -269,7 +305,7 @@ Copy it into your Airflow `dags/` folder, or point Airflow at this repo.
 ## Tests
 
 ```bash
-pytest -q                        # 64 tests, no network, no keys
+pytest -q                        # 88 tests, no network, no keys
 USE_LANGGRAPH=1 pytest -q        # the same suite on the LangGraph engine
 python main.py --demo
 ```

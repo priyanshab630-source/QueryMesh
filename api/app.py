@@ -25,7 +25,7 @@ from src.a2a import agent_cards
 from src.a2a.server import handle as a2a_handle
 from src.core import tracing
 from src.core.engine import engine_name
-from src.search import embeddings
+from src.search import embeddings, opensearch_backend
 from src.search.index import get_index, rebuild
 from src.tools import arxiv_client, cache, llm
 
@@ -65,6 +65,7 @@ def health():
         "embeddings": embeddings.backend_name(),
         "cache": cache.backend_name(),
         "engine": engine_name(),
+        "search": opensearch_backend.backend_name(),
         "tracing": tracing.sinks(),
         "auth": "jwt" if config.AUTH_ENABLED else "open",
         "agents": 5,

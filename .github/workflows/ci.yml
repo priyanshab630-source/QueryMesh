@@ -28,7 +28,7 @@ jobs:
         run: pytest -q
 
       - name: Install optional extras used by the tests
-        run: pip install langgraph fastmcp gradio
+        run: pip install langgraph fastmcp gradio opensearch-py fakeredis pymupdf
 
       - name: Run tests on the LangGraph engine
         env:

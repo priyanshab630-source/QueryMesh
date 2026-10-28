@@ -5,9 +5,10 @@ agent can point back to a real arXiv entry.
 """
 
 import json
+import sys
 
 import config
-from src.search import embeddings, rrf
+from src.search import embeddings, opensearch_backend, rrf
 from src.search.bm25 import BM25
 
 
@@ -51,13 +52,36 @@ class HybridIndex:
         self.bm25 = BM25(self.texts)
         self.vectors = embeddings.embed_many(self.texts) if self.texts else []
 
+        # Optional: real BM25 from OpenSearch instead of the in-process index.
+        self.os_client = opensearch_backend.client()
+        self.os_index = None
+        if self.os_client is not None:
+            try:
+                self.os_index = opensearch_backend.ensure_index(self.os_client)
+                opensearch_backend.bulk_index(self.os_client, self.chunks, self.os_index)
+            except Exception as exc:              # noqa: BLE001 - degrade, don't fail
+                print(f"[index] OpenSearch unavailable ({type(exc).__name__}); "
+                      "using the in-process BM25", file=sys.stderr)
+                self.os_client, self.os_index = None, None
+
+    def _opensearch_hits(self, query: str, k: int) -> list:
+        """Map OpenSearch chunk ids back to local chunk indices."""
+        by_id = {chunk["chunk_id"]: index for index, chunk in enumerate(self.chunks)}
+        hits = opensearch_backend.search(self.os_client, query,
+                                         min(len(self.chunks), k * 3), self.os_index)
+        return [(by_id[chunk_id], score) for chunk_id, score in hits
+                if chunk_id in by_id]
+
     def search(self, query: str, k: int = None) -> list:
         """Returns [{"chunk": ..., "score": ..., "bm25_rank": ..., "dense_rank": ...}]."""
         k = k or config.TOP_K
         if not self.chunks:
             return []
 
-        keyword_hits = self.bm25.top_k(query, k=min(len(self.chunks), k * 3))
+        if self.os_client is not None:
+            keyword_hits = self._opensearch_hits(query, k)
+        else:
+            keyword_hits = self.bm25.top_k(query, k=min(len(self.chunks), k * 3))
 
         query_vector = embeddings.embed(query)
         dense_scored = [

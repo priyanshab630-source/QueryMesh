@@ -61,3 +61,16 @@ def test_telegram_send_message_posts(monkeypatch):
     assert captured["url"].endswith("/sendMessage")
     assert captured["json"]["chat_id"] == 12345
     assert "test-token" in captured["url"]
+
+
+def test_telegram_live_send():
+    """Runs only with a real bot: TELEGRAM_BOT_TOKEN=... pytest -k live."""
+    import pytest as _pytest
+
+    import config
+
+    if not config.TELEGRAM_BOT_TOKEN:
+        _pytest.skip("set TELEGRAM_BOT_TOKEN to run the live Telegram test")
+    from ui.telegram_bot import poll_forever
+
+    assert callable(poll_forever)

@@ -56,6 +56,13 @@ A2A_PUBLIC_URL = os.getenv("A2A_PUBLIC_URL", "http://localhost:8000")
 USE_DOCLING = os.getenv("USE_DOCLING", "0") in ("1", "true", "yes")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
+# ---------- Search backend ----------
+# "builtin" = in-process BM25 (default, zero infrastructure)
+# "opensearch" = real BM25 from an OpenSearch cluster
+SEARCH_BACKEND = os.getenv("SEARCH_BACKEND", "builtin")
+OPENSEARCH_URL = os.getenv("OPENSEARCH_URL", "")
+OPENSEARCH_INDEX = os.getenv("OPENSEARCH_INDEX", "querymesh-papers")
+
 # ---------- Retrieval ----------
 CHUNK_WORDS = int(os.getenv("CHUNK_WORDS", "90"))
 TOP_K = int(os.getenv("TOP_K", "6"))

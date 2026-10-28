@@ -6,6 +6,8 @@ layout-aware parsing keeps tables and section order intact:
     pip install docling
 """
 
+import os
+import sys
 from pathlib import Path
 
 import config
@@ -35,12 +37,27 @@ def parse(path) -> str:
                             for page in PdfReader(str(path)).pages)
 
     try:
-        from docling.document_converter import DocumentConverter   # optional
+        from docling.document_converter import DocumentConverter, PdfFormatOption
+        from docling.datamodel.base_models import InputFormat
+        from docling.datamodel.pipeline_options import PdfPipelineOptions
 
-        result = DocumentConverter().convert(str(path))
+        # Default pipeline (layout + text). Table structure and OCR pull in extra
+        # models, so they are opt-in: DOCLING_TABLES=1 / DOCLING_OCR=1.
+        if os.getenv("DOCLING_TABLES") == "1" or os.getenv("DOCLING_OCR") == "1":
+            pipeline = PdfPipelineOptions(
+                do_table_structure=os.getenv("DOCLING_TABLES") == "1",
+                do_ocr=os.getenv("DOCLING_OCR") == "1",
+            )
+            converter = DocumentConverter(
+                format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline)}
+            )
+        else:
+            converter = DocumentConverter()
+        result = converter.convert(str(path))
         return result.document.export_to_markdown()
-    except Exception:                            # noqa: BLE001 - fall through
-        pass
+    except Exception as exc:                     # noqa: BLE001 - fall through
+        print(f"[pdf] docling failed ({type(exc).__name__}); using pypdf",
+              file=sys.stderr)
 
     from pypdf import PdfReader                  # default path
 

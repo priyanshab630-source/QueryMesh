@@ -12,6 +12,9 @@ uvicorn>=0.27
 pytest>=8.0
 httpx2>=0.1            # starlette's TestClient dependency (newer FastAPI)
 PyYAML>=6.0            # validates the Helm chart in tests/test_helm_chart.py
+PyMuPDF>=1.24          # builds the sample PDF used by tests/test_pdf_parser.py
+opensearch-py>=2.4     # OpenSearch BM25 backend (SEARCH_BACKEND=opensearch)
+fakeredis>=2.20        # exercises the Redis cache path without a server
 
 # Optional extras, uncomment as you need them:
 # langgraph>=1.0          # real orchestration engine (USE_LANGGRAPH=1)
