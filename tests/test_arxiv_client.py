@@ -23,7 +23,7 @@ class FakeResponse:
 
 def test_search_parses_the_atom_feed(monkeypatch):
     monkeypatch.setattr(arxiv_client.requests, "get",
-                        lambda *a, **k: FakeResponse(FIXTURE.read_text()))
+                        lambda *a, **k: FakeResponse(FIXTURE.read_text(encoding="utf-8")))
     papers = arxiv_client.search("retrieval", max_results=2)
 
     assert len(papers) == 2
@@ -46,7 +46,7 @@ def test_search_returns_empty_when_offline(monkeypatch):
 
 def test_ingest_writes_papers_to_the_corpus(monkeypatch, tmp_path):
     monkeypatch.setattr(arxiv_client.requests, "get",
-                        lambda *a, **k: FakeResponse(FIXTURE.read_text()))
+                        lambda *a, **k: FakeResponse(FIXTURE.read_text(encoding="utf-8")))
     monkeypatch.setattr(config, "DATA_DIR", tmp_path)
 
     papers = arxiv_client.ingest("retrieval", limit=2)
@@ -54,7 +54,7 @@ def test_ingest_writes_papers_to_the_corpus(monkeypatch, tmp_path):
     assert len(papers) == 2
     written = sorted((tmp_path / "papers").glob("*.json"))
     assert len(written) == 2
-    stored = json.loads(written[0].read_text())
+    stored = json.loads(written[0].read_text(encoding="utf-8"))
     assert stored["source"] == "arxiv"
 
 

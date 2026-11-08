@@ -13,6 +13,8 @@ Routes
     GET  /.well-known/agent.json  orchestrator agent card
 """
 
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,8 +37,8 @@ app = FastAPI(
     version="0.2.0",
 )
 
-STATIC_DIR = __file__.rsplit("/", 1)[0] + "/static"
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 class AskRequest(BaseModel):
@@ -120,4 +122,4 @@ def agent_card():
 
 @app.get("/")
 def index_page():
-    return FileResponse(STATIC_DIR + "/index.html")
+    return FileResponse(str(STATIC_DIR / "index.html"))

@@ -28,14 +28,14 @@ def _strip_templates(text: str) -> str:
 
 
 def test_chart_metadata():
-    chart = yaml.safe_load((CHART / "Chart.yaml").read_text())
+    chart = yaml.safe_load((CHART / "Chart.yaml").read_text(encoding="utf-8"))
     assert chart["apiVersion"] == "v2"
     assert chart["name"] == "querymesh"
     assert chart["version"]
 
 
 def test_values_cover_what_templates_use():
-    values = yaml.safe_load((CHART / "values.yaml").read_text())
+    values = yaml.safe_load((CHART / "values.yaml").read_text(encoding="utf-8"))
     for key in ("image", "service", "ingress", "resources", "autoscaling",
                 "env", "serviceAccount", "externalSecret"):
         assert key in values, key
@@ -49,7 +49,7 @@ def test_templates_parse_as_yaml():
     templates = sorted((CHART / "templates").glob("*.yaml"))
     assert templates, "no templates found"
     for template in templates:
-        rendered = _strip_templates(template.read_text())
+        rendered = _strip_templates(template.read_text(encoding="utf-8"))
         documents = [doc for doc in yaml.safe_load_all(rendered) if doc]
         assert documents, f"{template.name} produced no documents"
         for document in documents:
@@ -58,14 +58,14 @@ def test_templates_parse_as_yaml():
 
 def test_deployment_is_hardened():
     deployment = yaml.safe_load(
-        _strip_templates((CHART / "templates" / "deployment.yaml").read_text()))
+        _strip_templates((CHART / "templates" / "deployment.yaml").read_text(encoding="utf-8")))
     container = deployment["spec"]["template"]["spec"]["containers"][0]
     assert "httpGet" in container["livenessProbe"]
     assert "httpGet" in container["readinessProbe"]
     assert container["securityContext"]["allowPrivilegeEscalation"] is False
     assert deployment["spec"]["template"]["spec"]["securityContext"]["runAsNonRoot"] is True
     # the probe path is templated from values, not hardcoded
-    source = (CHART / "templates" / "deployment.yaml").read_text()
+    source = (CHART / "templates" / "deployment.yaml").read_text(encoding="utf-8")
     assert ".Values.livenessProbe.path" in source
 
     # secrets must come from a secretRef, never from the ConfigMap
@@ -75,6 +75,6 @@ def test_deployment_is_hardened():
 
 def test_no_secrets_are_hardcoded():
     for path in [CHART / "values.yaml"] + sorted((CHART / "templates").glob("*.yaml")):
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         for marker in ("SARVAM_API_KEY=", "JWT_SECRET=", "AKIA", "sk-"):
             assert marker not in text, f"{path.name} looks like it contains a secret"

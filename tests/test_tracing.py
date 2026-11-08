@@ -15,7 +15,7 @@ def test_trace_is_written_locally(tmp_path, monkeypatch):
     tracer.event("supervisor", {"message": "decomposed"})
     record = tracer.end({"citations": 1})
 
-    stored = json.loads((tmp_path / "runs.jsonl").read_text().strip())
+    stored = json.loads((tmp_path / "runs.jsonl").read_text(encoding="utf-8").strip())
     assert stored["run_id"] == record["run_id"]
     assert stored["events"][0]["name"] == "supervisor"
     assert stored["outputs"]["citations"] == 1
@@ -40,6 +40,6 @@ def test_ask_writes_one_trace(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "TRACE_DIR", tmp_path)
     ask("How does Self-RAG decide when retrieval is needed?")
 
-    lines = (tmp_path / "runs.jsonl").read_text().strip().splitlines()
+    lines = (tmp_path / "runs.jsonl").read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == 1
     assert json.loads(lines[0])["name"] == "querymesh.ask"
